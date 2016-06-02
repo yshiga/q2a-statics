@@ -1,6 +1,6 @@
 <?php
 
-class mail_body_builder
+class q2a_statics_mail_body_builder
 {
     public static function create()
     {
@@ -22,7 +22,7 @@ class mail_body_builder
 
     public static function createPostCountSection()
     {
-        $postPerMonth = db_client::getPostPerMonth();
+        $postPerMonth = q2a_statics_db_client::getPostPerMonth();
 
         $body = '--- post count per month ---'."\n";
         $body .= 'month : post(前年比)'."\n";
@@ -45,8 +45,8 @@ class mail_body_builder
 
     public static function createBestAnswerSection()
     {
-        $noBestNum = db_client::getNoBestAnswerNum();
-        $bestNum = db_client::getBestAnswerNum();
+        $noBestNum = q2a_statics_db_client::getNoBestAnswerNum();
+        $bestNum = q2a_statics_db_client::getBestAnswerNum();
 
         $body = '--- best answer ---'."\n";
         $body .= 'no best answer : '.$noBestNum."\n";

@@ -2,11 +2,11 @@
 if (!defined('QA_VERSION')) {
 	require_once dirname(empty($_SERVER['SCRIPT_FILENAME']) ? __FILE__ : $_SERVER['SCRIPT_FILENAME']).'/../../qa-include/qa-base.php';
 	require_once QA_INCLUDE_DIR.'app/emails.php';
-	require_once QA_PLUGIN_DIR . 'q2a-statics/db-client.php';
-	require_once QA_PLUGIN_DIR . 'q2a-statics/mail-body-builder.php';
+	require_once QA_PLUGIN_DIR . 'q2a-statics/q2a-statics-db-client.php';
+	require_once QA_PLUGIN_DIR . 'q2a-statics/q2a-statics-mail-body-builder.php';
 }
 
-$body = mail_body_builder::create();
+$body = q2a_statics_mail_body_builder::create();
 $params['fromemail'] = qa_opt('from_email');
 $params['fromname'] = qa_opt('site_title');
 $params['subject'] = '【' . qa_opt('site_title') . '】statics reports';

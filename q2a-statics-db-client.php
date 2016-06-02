@@ -1,6 +1,6 @@
 <?php
 
-class db_client
+class q2a_statics_db_client
 {
     public static function getPostPerMonth()
     {
