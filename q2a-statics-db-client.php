@@ -73,7 +73,12 @@ class q2a_statics_db_client
 		FROM qa_posts
 		WHERE type = 'A'
 		AND created >= DATE_SUB(NOW(), INTERVAL # DAY))";
-		return qa_db_read_one_assoc(qa_db_query_sub($sql, $days));
+		$result = qa_db_read_one_assoc(qa_db_query_sub($sql, $days));
+		if (isset($result['vcount'])) {
+			return $result['vcount'];
+		} else {
+			return 0;
+		}
 	}
 
 	public static function get_answer_within_hour($days = 30, $hour = 1)
@@ -85,6 +90,26 @@ class q2a_statics_db_client
 		WHERE a.type = 'A'
 		AND p.created >= DATE_SUB(NOW(), INTERVAL # DAY)
 		AND p.created >= DATE_SUB(a.created, INTERVAL # HOUR)";
-		return qa_db_read_one_assoc(qa_db_query_sub($sql, $days, $hour));
+		$result = qa_db_read_one_assoc(qa_db_query_sub($sql, $days, $hour));
+		if (isset($result['qcount'])) {
+			return $result['qcount'];
+		} else {
+			return 0;
+		}
+	}
+
+	public static function get_posted_user_count($days = 30)
+	{
+		$sql = "SELECT count(*) AS ucount
+		FROM (SELECT userid
+			  FROM qa_posts
+			  WHERE created >= DATE_SUB(NOW(), INTERVAL # DAY)
+			  GROUP BY userid) users";
+		$result = qa_db_read_one_assoc(qa_db_query_sub($sql, $days));
+		if (isset($result['ucount'])) {
+			return $result['ucount'];
+		} else {
+			return 0;
+		}
 	}
 }
