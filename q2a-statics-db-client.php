@@ -83,13 +83,17 @@ class q2a_statics_db_client
 
 	public static function get_answer_within_hour($days = 30, $hour = 1)
 	{
-		$sql = "SELECT count(p.postid) AS qcount
-		FROM qa_posts a
-		LEFT JOIN qa_posts p
-		ON a.parentid = p.postid
-		WHERE a.type = 'A'
-		AND p.created >= DATE_SUB(NOW(), INTERVAL # DAY)
-		AND p.created >= DATE_SUB(a.created, INTERVAL # HOUR)";
+		$sql = "SELECT count(*) as qcount
+		FROM (SELECT q.postid
+			  FROM qa_posts a
+			  LEFT JOIN qa_posts q
+			  ON a.parentid = q.postid
+			  AND a.type = 'A'
+			  AND q.type = 'Q'
+			  WHERE q.created >= DATE_SUB(NOW(), INTERVAL # DAY)
+			  AND q.created >= DATE_SUB(a.created, INTERVAL # HOUR)
+			  GROUP BY q.postid
+		) posts";
 		$result = qa_db_read_one_assoc(qa_db_query_sub($sql, $days, $hour));
 		if (isset($result['qcount'])) {
 			return $result['qcount'];

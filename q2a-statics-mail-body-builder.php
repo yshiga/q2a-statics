@@ -74,7 +74,7 @@ class q2a_statics_mail_body_builder
 		$answer3 = q2a_statics_db_client::get_answer_within_hour($days, 3);
 		$answer12 = q2a_statics_db_client::get_answer_within_hour($days, 12);
 		$answer24 = q2a_statics_db_client::get_answer_within_hour($days, 24);
-		$ucount = q2a_statics_db_client::get_posted_user_count($days, 24);
+		$ucount = q2a_statics_db_client::get_posted_user_count($days);
 
 		$body = $header;
 		$body.= $questions . ',';
