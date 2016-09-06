@@ -61,7 +61,14 @@ class q2a_statics_mail_body_builder
 
 	public static function create_kpi_section_days($days = 30)
 	{
-		$header = "質問数 (30日以内), 回答数 (30日以内), コメント数 (30日以内), 回答数 / 質問 (30日以内), コメント数 / 回答 (30日以内), ベストアンサー率, 支持数 / 回答 (30日以内), 回答投稿率 (1時間以内), 回答投稿率 (3時間以内), 回答投稿率 (12時間以内), 回答投稿率 (24時間以内), 投稿ユーザー数 (30日以内), 平均投稿数\n";
+		$header = "質問数 (30日以内), 回答数 (30日以内), コメント数 (30日以内),";
+		$header .= " 回答数 / 質問 (30日以内), コメント数 / 回答 (30日以内),";
+		$header .= " ベストアンサー率, 支持数 / 回答 (30日以内),";
+		$header .= " 回答投稿率 (1時間以内), 回答投稿率 (3時間以内),";
+		$header .= " 回答投稿率 (12時間以内), 回答投稿率 (24時間以内),";
+		$header .= " 投稿ユーザー数 (30日以内), 平均投稿数, ";
+		$header .= "新規ユーザー1日以内投稿率, 新規ユーザー3日以内投稿率, ";
+		$header .= "新規ユーザー7日以内投稿率\n";
 		$posts = q2a_statics_db_client::get_post_count_days($days);
 		$questions = $posts['qcount'];
 		$answers = $posts['acount'];
@@ -75,6 +82,9 @@ class q2a_statics_mail_body_builder
 		$answer12 = q2a_statics_db_client::get_answer_within_hour($days, 12);
 		$answer24 = q2a_statics_db_client::get_answer_within_hour($days, 24);
 		$ucount = q2a_statics_db_client::get_posted_user_count($days);
+		$newuserrate1 = q2a_statics_db_client::get_newuser_posted_rate(1, null, 30);;
+		$newuserrate3 = q2a_statics_db_client::get_newuser_posted_rate(3, 4, 34);;
+		$newuserrate7 = q2a_statics_db_client::get_newuser_posted_rate(7, 7, 37);;
 
 		$body = $header;
 		$body.= $questions . ',';
@@ -89,7 +99,11 @@ class q2a_statics_mail_body_builder
 		$body.= round(($answer12 / $questions) * 100, 2) . '%,';
 		$body.= round(($answer24 / $questions) * 100, 2) . '%,';
 		$body.= $ucount . ',';
-		$body.= round(($questions + $answers + $comments) / $answers, 1) . "\n";
+		$body.= round(($questions + $answers + $comments) / $answers, 1) . ',';
+		$body.= round($newuserrate1 * 100, 1) . '%,';
+		$body.= round($newuserrate3 * 100, 1) . '%,';
+		$body.= round($newuserrate7 * 100, 1) . '%';
+		$body.= "\n";
 
 		return $body;
 	}
