@@ -116,4 +116,36 @@ class q2a_statics_db_client
 			return 0;
 		}
 	}
+
+	public static function get_newuser_posted_rate($postday = 1, $start = null, $end = 30)
+	{
+		$sql = " SELECT count(*) postedusers,";
+		$sql .= " (SELECT count(*) FROM qa_users";
+		$sql .= " WHERE created >= DATE_SUB(NOW(), INTERVAL # DAY)";
+		if(isset($start)) {
+			$sql .= qa_db_apply_sub(" AND created <= DATE_SUB(NOW(), INTERVAL # DAY)",
+			 						array($start));
+		}
+		$sql .= " ) newusers";
+		$sql .= " FROM";
+		$sql .= " (SELECT u.userid";
+		$sql .= " FROM qa_users u";
+		$sql .= " LEFT JOIN qa_posts p";
+		$sql .= " ON p.userid = u.userid";
+		$sql .= " WHERE u.created >= DATE_SUB(NOW(), INTERVAL # DAY)";
+		if(isset($start)) {
+			$sql .= qa_db_apply_sub(" AND u.created <= DATE_SUB(NOW(), INTERVAL # DAY)",
+			 						array($start));
+		}
+		$sql .= " AND u.created >= DATE_SUB(p.created, INTERVAL # DAY)";
+		$sql .= " GROUP BY u.userid ) count";
+		$result = qa_db_read_one_assoc(qa_db_query_sub($sql, $end, $end, $postday));
+		if (isset($result['postedusers']) && $result['postedusers'] > 0 &&
+			isset($result['newusers']) && $result['newusers'] > 0) {
+			return (int)$result['postedusers'] / (int)$result['newusers'];
+		} else {
+			return 0;
+		}
+	}
+
 }
