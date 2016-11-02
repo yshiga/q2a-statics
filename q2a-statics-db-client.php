@@ -147,5 +147,18 @@ class q2a_statics_db_client
 			return 0;
 		}
 	}
-
+    
+    public static function get_private_messages_count($day = 30)
+    {
+        $sql = " SELECT count(*) messages";
+        $sql .= " FROM ^messages";
+        $sql .= " WHERE type = $";
+        $sql .= " AND created >= DATE_SUB(NOW(), INTERVAL # DAY)";
+        $result = qa_db_read_one_assoc(qa_db_query_sub($sql, 'PRIVATE', $day));
+        if (isset($result['messages']) && $result['messages'] > 0) {
+            return (int)$result['messages'];
+        } else {
+            return 0;
+        }
+    }
 }
