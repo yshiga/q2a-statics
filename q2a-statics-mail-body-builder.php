@@ -4,9 +4,6 @@ class q2a_statics_mail_body_builder
 {
 	public static function create()
 	{
-		// $body = self::createKPISection();
-		// $body .= self::createPostCountSection();
-		// $body .= self::createBestAnswerSection();
 		$body = self::create_kpi_section_days(30);
 
 		return $body;
