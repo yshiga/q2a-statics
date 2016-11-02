@@ -65,7 +65,7 @@ class q2a_statics_mail_body_builder
 		$header .= " 回答投稿率 (12時間以内), 回答投稿率 (24時間以内),";
 		$header .= " 投稿ユーザー数 (30日以内), 平均投稿数, ";
 		$header .= "新規ユーザー1日以内投稿率, 新規ユーザー3日以内投稿率, ";
-		$header .= "新規ユーザー7日以内投稿率";
+		$header .= "新規ユーザー7日以内投稿率, ";
 		$header .= "プライベートメッセージ送信数\n";
 		$posts = q2a_statics_db_client::get_post_count_days($days);
 		$questions = $posts['qcount'];
