@@ -161,4 +161,15 @@ class q2a_statics_db_client
             return 0;
         }
     }
+    
+    public static function get_notified_read_rate($start = 12, $end = 24)
+    {
+        $sql = "SELECT TRUNCATE(SUM(CASE WHEN read_flag = 1 THEN 1 ELSE 0 END) / count(noticeid) * 100 + 0.009, 2) AS readrate";
+        $sql .= " FROM ^sn_notice";
+        $sql .= " WHERE created <= DATE_SUB(NOW(), INTERVAL # HOUR)";
+        $sql .= " AND created >= DATE_SUB(NOW(), INTERVAL # HOUR)";
+        $result = qa_db_read_one_assoc(qa_db_query_sub($sql, $start, $end), true);
+        
+        return $result;
+    }
 }

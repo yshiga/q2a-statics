@@ -66,7 +66,8 @@ class q2a_statics_mail_body_builder
 		$header .= " 投稿ユーザー数 (30日以内), 平均投稿数, ";
 		$header .= "新規ユーザー1日以内投稿率, 新規ユーザー3日以内投稿率, ";
 		$header .= "新規ユーザー7日以内投稿率, ";
-		$header .= "プライベートメッセージ送信数\n";
+		$header .= "プライベートメッセージ送信数";
+		$header .= "12時間から24時間までの通知の既読率,24時間から48時間までの通知の既読率\n";
 		$posts = q2a_statics_db_client::get_post_count_days($days);
 		$questions = $posts['qcount'];
 		$answers = $posts['acount'];
@@ -84,6 +85,10 @@ class q2a_statics_mail_body_builder
 		$newuserrate3 = q2a_statics_db_client::get_newuser_posted_rate(3, 4, 34);
 		$newuserrate7 = q2a_statics_db_client::get_newuser_posted_rate(7, 7, 37);
 		$messages_count = q2a_statics_db_client::get_private_messages_count($days);
+		$result = q2a_statics_db_client::get_notified_read_rate(12, 24);
+		$notified_read_rate24 = is_null($result['readrate']) ? '0' : $result['readrate'];
+		$result2 = q2a_statics_db_client::get_notified_read_rate(24, 48);
+		$notified_read_rate48 = is_null($result2['readrate']) ? '0' : $result2['readrate'];
 
 		$body = $header;
 		$body.= $questions . ',';
@@ -102,7 +107,9 @@ class q2a_statics_mail_body_builder
 		$body.= round($newuserrate1 * 100, 1) . '%,';
 		$body.= round($newuserrate3 * 100, 1) . '%,';
 		$body.= round($newuserrate7 * 100, 1) . '%,';
-		$body.= $messages_count;
+		$body.= $messages_count . ',';
+		$body.= $notified_read_rate24 . '%,';
+		$body.= $notified_read_rate48 . '%';
 		$body.= "\n";
 
 		return $body;
