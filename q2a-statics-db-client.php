@@ -2,7 +2,21 @@
 
 class q2a_statics_db_client
 {
-    public static function getFirstBlogPostUsers($week) {
+    public static function getFirstBlogPostUsersByMonth($month) {
+
+	$sql = " SELECT * FROM (SELECT userid, DATE_FORMAT(MIN(created), '%Y-%m') AS first_created  FROM qa_blogs WHERE type='B' GROUP BY userid ) AS tmp WHERE first_created= DATE_FORMAT(DATE_ADD('2016-08-01', INTERVAL # MONTH), '%Y-%m'); ";
+
+       $result = qa_db_query_sub($sql, $month);
+        return qa_db_read_all_assoc($result);
+    }
+
+    public static function getCountOfBlogPostUsersByMonth($month, $users) {
+	$sql = " SELECT count(DISTINCT userid) FROM qa_blogs WHERE type='B' AND DATE_FORMAT(created, '%Y-%m') = DATE_FORMAT(DATE_ADD('2016-08-01', INTERVAL #  MONTH), '%Y-%m') AND userid IN (" . implode(",", $users) . ");";
+        $result = qa_db_query_sub($sql, $month);
+        return qa_db_read_one_value($result);
+    }
+
+    public static function getFirstBlogPostUsersByWeek($week) {
 
 	$sql = " SELECT * FROM (SELECT userid, DATE_FORMAT(MIN(created), '%Y-%u') AS first_created  FROM qa_blogs WHERE type='B' GROUP BY userid ) AS tmp WHERE first_created= DATE_FORMAT(DATE_ADD('2016-08-08', INTERVAL # WEEK), '%Y-%u'); ";
 
@@ -10,8 +24,8 @@ class q2a_statics_db_client
         return qa_db_read_all_assoc($result);
     }
 
-    public static function getCountOfBlogPostUsers($week, $users) {
-	$sql = " SELECT count(userid) FROM qa_blogs WHERE type='B' AND DATE_FORMAT(created, '%Y-%U') = DATE_FORMAT(DATE_ADD('2016-08-08', INTERVAL # WEEK), '%Y-%u') AND userid IN (" . implode(",", $users) . ");";
+    public static function getCountOfBlogPostUsersByWeek($week, $users) {
+	$sql = " SELECT count(DISTINCT userid) FROM qa_blogs WHERE type='B' AND DATE_FORMAT(created, '%Y-%U') = DATE_FORMAT(DATE_ADD('2016-08-08', INTERVAL # WEEK), '%Y-%u') AND userid IN (" . implode(",", $users) . ");";
         $result = qa_db_query_sub($sql, $week);
         return qa_db_read_one_value($result);
     }
