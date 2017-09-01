@@ -2,6 +2,90 @@
 
 class q2a_statics_db_client
 {
+
+    public static function getFirstANSWERUsers($ago,$type) {
+
+      $sql = "SELECT * FROM (SELECT userid, DATE_FORMAT(MIN(created), '%Y-%m-%d') AS first_created ";
+      $sql .= " FROM qa_posts WHERE TYPE='A' GROUP BY userid) AS tmp ";
+      $sql .= " WHERE first_created BETWEEN DATE_ADD(NOW(), INTERVAL # " . $type . ") AND DATE_ADD(NOW(), INTERVAL # " . $type . ")";
+      $result = qa_db_query_sub($sql, -$ago - 1, -$ago);
+      $tmp = qa_db_read_all_assoc($result);
+
+      $users = array_map(function($v){
+        return $v['userid'];
+      },$tmp);
+
+      // 期間の初日を取得する
+      $sql2 = "SELECT DATE_FORMAT(DATE_ADD(NOW(), INTERVAL # " . $type . "), '%Y-%m-%d') as date";
+      $result2 = qa_db_query_sub($sql2, -$ago - 1);
+      $first_date = qa_db_read_one_value($result2);
+
+      return array('date' => $first_date, 'users' => $users);
+    }
+
+    public static function getCountANSWERUsers($ago,$type,$users) {
+
+      if(count($users) > 0) {
+        $sql = "SELECT DISTINCT userid FROM qa_posts WHERE type='A'";
+        $sql .= " AND created BETWEEN DATE_ADD(NOW(), INTERVAL # " . $type . ") AND DATE_ADD(NOW(), INTERVAL # " . $type . ")";
+        $sql .= " AND userid IN (" . implode(",", $users) . ")";
+        $result = qa_db_query_sub($sql, -$ago - 1, -$ago);
+        $tmp = qa_db_read_all_assoc($result);
+        $users = array_map(function($v){
+          return $v['userid'];
+        },$tmp);
+      }
+
+
+      $sql2 = "SELECT DATE_FORMAT(DATE_ADD(NOW(), INTERVAL # " . $type . "), '%Y-%m-%d') as date";
+      $result2 = qa_db_query_sub($sql2, -$ago - 1);
+      $first_date = qa_db_read_one_value($result2);
+
+      return array('date' => $first_date, 'users' => $users);
+    }
+
+    public static function getFirstQUESTIONUsers($ago,$type) {
+
+      $sql = "SELECT * FROM (SELECT userid, DATE_FORMAT(MIN(created), '%Y-%m-%d') AS first_created ";
+      $sql .= " FROM qa_posts WHERE TYPE='Q' GROUP BY userid) AS tmp ";
+      $sql .= " WHERE first_created BETWEEN DATE_ADD(NOW(), INTERVAL # " . $type . ") AND DATE_ADD(NOW(), INTERVAL # " . $type . ")";
+      $result = qa_db_query_sub($sql, -$ago - 1, -$ago);
+      $tmp = qa_db_read_all_assoc($result);
+
+      $users = array_map(function($v){
+        return $v['userid'];
+      },$tmp);
+
+      // 期間の初日を取得する
+      $sql2 = "SELECT DATE_FORMAT(DATE_ADD(NOW(), INTERVAL # " . $type . "), '%Y-%m-%d') as date";
+      $result2 = qa_db_query_sub($sql2, -$ago - 1);
+      $first_date = qa_db_read_one_value($result2);
+
+      return array('date' => $first_date, 'users' => $users);
+    }
+
+    public static function getCountQUESTIONUsers($ago,$type,$users) {
+
+      if(count($users) > 0) {
+        $sql = "SELECT DISTINCT userid FROM qa_posts WHERE type='Q'";
+        $sql .= " AND created BETWEEN DATE_ADD(NOW(), INTERVAL # " . $type . ") AND DATE_ADD(NOW(), INTERVAL # " . $type . ")";
+        $sql .= " AND userid IN (" . implode(",", $users) . ")";
+        $result = qa_db_query_sub($sql, -$ago - 1, -$ago);
+        $tmp = qa_db_read_all_assoc($result);
+        $users = array_map(function($v){
+          return $v['userid'];
+        },$tmp);
+      }
+
+
+      $sql2 = "SELECT DATE_FORMAT(DATE_ADD(NOW(), INTERVAL # " . $type . "), '%Y-%m-%d') as date";
+      $result2 = qa_db_query_sub($sql2, -$ago - 1);
+      $first_date = qa_db_read_one_value($result2);
+
+      return array('date' => $first_date, 'users' => $users);
+    }
+
+
     /**
      * 初めてブログを書いたユーザーのIDを取得する
      *
@@ -9,7 +93,7 @@ class q2a_statics_db_client
      * @param  type 日(DAY), 週(WEEK), 月(MONTH)
      * @return
      */
-    public static function getFirstBlogPostUsers($ago,$type) {
+    public static function getFirstBLOGUsers($ago,$type) {
 
       $sql = "SELECT * FROM (SELECT userid, DATE_FORMAT(MIN(created), '%Y-%m-%d') AS first_created ";
       $sql .= " FROM qa_blogs WHERE TYPE='B' GROUP BY userid) AS tmp ";
@@ -29,7 +113,7 @@ class q2a_statics_db_client
       return array('date' => $first_date, 'users' => $users);
     }
 
-    public static function getCountBlogPostUsers($ago,$type,$users) {
+    public static function getCountBLOGUsers($ago,$type,$users) {
 
       if(count($users) > 0) {
         $sql = "SELECT DISTINCT userid FROM qa_blogs WHERE type='B'";
