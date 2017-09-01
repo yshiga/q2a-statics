@@ -2,32 +2,52 @@
 
 class q2a_statics_db_client
 {
-    public static function getFirstBlogPostUsersByMonth($month) {
+    /**
+     * 初めてブログを書いたユーザーのIDを取得する
+     *
+     * @param  ago 何期間前か
+     * @param  type 日(DAY), 週(WEEK), 月(MONTH)
+     * @return
+     */
+    public static function getFirstBlogPostUsers($ago,$type) {
 
-	$sql = " SELECT * FROM (SELECT userid, DATE_FORMAT(MIN(created), '%Y-%m') AS first_created  FROM qa_blogs WHERE type='B' GROUP BY userid ) AS tmp WHERE first_created= DATE_FORMAT(DATE_ADD('2016-08-01', INTERVAL # MONTH), '%Y-%m'); ";
+      $sql = "SELECT * FROM (SELECT userid, DATE_FORMAT(MIN(created), '%Y-%m-%d') AS first_created ";
+      $sql .= " FROM qa_blogs WHERE TYPE='B' GROUP BY userid) AS tmp ";
+      $sql .= " WHERE first_created BETWEEN DATE_ADD(NOW(), INTERVAL # " . $type . ") AND DATE_ADD(NOW(), INTERVAL # " . $type . ")";
+      $result = qa_db_query_sub($sql, -$ago - 1, -$ago);
+      $tmp = qa_db_read_all_assoc($result);
 
-       $result = qa_db_query_sub($sql, $month);
-        return qa_db_read_all_assoc($result);
+      $users = array_map(function($v){
+        return $v['userid'];
+      },$tmp);
+
+      // 期間の初日を取得する
+      $sql2 = "SELECT DATE_FORMAT(DATE_ADD(NOW(), INTERVAL # " . $type . "), '%Y-%m-%d') as date";
+      $result2 = qa_db_query_sub($sql2, -$ago - 1);
+      $first_date = qa_db_read_one_value($result2);
+
+      return array('date' => $first_date, 'users' => $users);
     }
 
-    public static function getCountOfBlogPostUsersByMonth($month, $users) {
-	$sql = " SELECT count(DISTINCT userid) FROM qa_blogs WHERE type='B' AND DATE_FORMAT(created, '%Y-%m') = DATE_FORMAT(DATE_ADD('2016-08-01', INTERVAL #  MONTH), '%Y-%m') AND userid IN (" . implode(",", $users) . ");";
-        $result = qa_db_query_sub($sql, $month);
-        return qa_db_read_one_value($result);
-    }
+    public static function getCountBlogPostUsers($ago,$type,$users) {
 
-    public static function getFirstBlogPostUsersByWeek($week) {
+      if(count($users) > 0) {
+        $sql = "SELECT DISTINCT userid FROM qa_blogs WHERE type='B'";
+        $sql .= " AND created BETWEEN DATE_ADD(NOW(), INTERVAL # " . $type . ") AND DATE_ADD(NOW(), INTERVAL # " . $type . ")";
+        $sql .= " AND userid IN (" . implode(",", $users) . ")";
+        $result = qa_db_query_sub($sql, -$ago - 1, -$ago);
+        $tmp = qa_db_read_all_assoc($result);
+        $users = array_map(function($v){
+          return $v['userid'];
+        },$tmp);
+      }
 
-	$sql = " SELECT * FROM (SELECT userid, DATE_FORMAT(MIN(created), '%Y-%u') AS first_created  FROM qa_blogs WHERE type='B' GROUP BY userid ) AS tmp WHERE first_created= DATE_FORMAT(DATE_ADD('2016-08-08', INTERVAL # WEEK), '%Y-%u'); ";
 
-       $result = qa_db_query_sub($sql, $week);
-        return qa_db_read_all_assoc($result);
-    }
+      $sql2 = "SELECT DATE_FORMAT(DATE_ADD(NOW(), INTERVAL # " . $type . "), '%Y-%m-%d') as date";
+      $result2 = qa_db_query_sub($sql2, -$ago - 1);
+      $first_date = qa_db_read_one_value($result2);
 
-    public static function getCountOfBlogPostUsersByWeek($week, $users) {
-	$sql = " SELECT count(DISTINCT userid) FROM qa_blogs WHERE type='B' AND DATE_FORMAT(created, '%Y-%U') = DATE_FORMAT(DATE_ADD('2016-08-08', INTERVAL # WEEK), '%Y-%u') AND userid IN (" . implode(",", $users) . ");";
-        $result = qa_db_query_sub($sql, $week);
-        return qa_db_read_one_value($result);
+      return array('date' => $first_date, 'users' => $users);
     }
 
     public static function getPostPerMonth()
@@ -175,7 +195,7 @@ class q2a_statics_db_client
 			return 0;
 		}
 	}
-    
+
     public static function get_private_messages_count($day = 30)
     {
         $sql = " SELECT count(*) messages";
@@ -189,7 +209,7 @@ class q2a_statics_db_client
             return 0;
         }
     }
-    
+
     public static function get_notified_read_rate($start = 12, $end = 24)
     {
         $sql = "SELECT TRUNCATE(SUM(CASE WHEN read_flag = 1 THEN 1 ELSE 0 END) / count(noticeid) * 100 + 0.009, 2) AS readrate";
@@ -197,7 +217,7 @@ class q2a_statics_db_client
         $sql .= " WHERE created <= DATE_SUB(NOW(), INTERVAL # HOUR)";
         $sql .= " AND created >= DATE_SUB(NOW(), INTERVAL # HOUR)";
         $result = qa_db_read_one_assoc(qa_db_query_sub($sql, $start, $end), true);
-        
+
         return $result;
     }
 }
