@@ -3,6 +3,18 @@
 class q2a_statics_db_client
 {
 
+    public static function filterUserIds($users) {
+
+      $users = array_filter($users, function($v){
+        return ($v['userid'] > 0);
+      });
+
+      $users = array_map(function($v){
+        return $v['userid'];
+      },$users);
+      return $users;
+    }
+
     public static function getFirstANSWERUsers($ago,$type) {
 
       $sql = "SELECT * FROM (SELECT userid, DATE_FORMAT(MIN(created), '%Y-%m-%d') AS first_created ";
@@ -10,10 +22,7 @@ class q2a_statics_db_client
       $sql .= " WHERE first_created BETWEEN DATE_ADD(NOW(), INTERVAL # " . $type . ") AND DATE_ADD(NOW(), INTERVAL # " . $type . ")";
       $result = qa_db_query_sub($sql, -$ago - 1, -$ago);
       $tmp = qa_db_read_all_assoc($result);
-
-      $users = array_map(function($v){
-        return $v['userid'];
-      },$tmp);
+      $users = self::filterUserIds($tmp);
 
       // 期間の初日を取得する
       $sql2 = "SELECT DATE_FORMAT(DATE_ADD(NOW(), INTERVAL # " . $type . "), '%Y-%m-%d') as date";
@@ -31,11 +40,8 @@ class q2a_statics_db_client
         $sql .= " AND userid IN (" . implode(",", $users) . ")";
         $result = qa_db_query_sub($sql, -$ago - 1, -$ago);
         $tmp = qa_db_read_all_assoc($result);
-        $users = array_map(function($v){
-          return $v['userid'];
-        },$tmp);
+        $users = self::filterUserIds($tmp);
       }
-
 
       $sql2 = "SELECT DATE_FORMAT(DATE_ADD(NOW(), INTERVAL # " . $type . "), '%Y-%m-%d') as date";
       $result2 = qa_db_query_sub($sql2, -$ago - 1);
@@ -51,10 +57,7 @@ class q2a_statics_db_client
       $sql .= " WHERE first_created BETWEEN DATE_ADD(NOW(), INTERVAL # " . $type . ") AND DATE_ADD(NOW(), INTERVAL # " . $type . ")";
       $result = qa_db_query_sub($sql, -$ago - 1, -$ago);
       $tmp = qa_db_read_all_assoc($result);
-
-      $users = array_map(function($v){
-        return $v['userid'];
-      },$tmp);
+      $users = self::filterUserIds($tmp);
 
       // 期間の初日を取得する
       $sql2 = "SELECT DATE_FORMAT(DATE_ADD(NOW(), INTERVAL # " . $type . "), '%Y-%m-%d') as date";
@@ -72,9 +75,7 @@ class q2a_statics_db_client
         $sql .= " AND userid IN (" . implode(",", $users) . ")";
         $result = qa_db_query_sub($sql, -$ago - 1, -$ago);
         $tmp = qa_db_read_all_assoc($result);
-        $users = array_map(function($v){
-          return $v['userid'];
-        },$tmp);
+        $users = self::filterUserIds($tmp);
       }
 
 
@@ -100,10 +101,7 @@ class q2a_statics_db_client
       $sql .= " WHERE first_created BETWEEN DATE_ADD(NOW(), INTERVAL # " . $type . ") AND DATE_ADD(NOW(), INTERVAL # " . $type . ")";
       $result = qa_db_query_sub($sql, -$ago - 1, -$ago);
       $tmp = qa_db_read_all_assoc($result);
-
-      $users = array_map(function($v){
-        return $v['userid'];
-      },$tmp);
+      $users = self::filterUserIds($tmp);
 
       // 期間の初日を取得する
       $sql2 = "SELECT DATE_FORMAT(DATE_ADD(NOW(), INTERVAL # " . $type . "), '%Y-%m-%d') as date";
@@ -121,11 +119,8 @@ class q2a_statics_db_client
         $sql .= " AND userid IN (" . implode(",", $users) . ")";
         $result = qa_db_query_sub($sql, -$ago - 1, -$ago);
         $tmp = qa_db_read_all_assoc($result);
-        $users = array_map(function($v){
-          return $v['userid'];
-        },$tmp);
+        $users = self::filterUserIds($tmp);
       }
-
 
       $sql2 = "SELECT DATE_FORMAT(DATE_ADD(NOW(), INTERVAL # " . $type . "), '%Y-%m-%d') as date";
       $result2 = qa_db_query_sub($sql2, -$ago - 1);
