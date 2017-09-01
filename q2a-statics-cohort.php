@@ -11,8 +11,8 @@ answer_cohort();
 function question_cohort() {
 	$type = "QUESTION";
 	$config = array(
-		array("MONTH", 12),
-		array("WEEK", 50),
+		array("MONTH", 24),
+		array("WEEK", 100),
 	);
 	cohort($type, $config);
 }
@@ -20,8 +20,8 @@ function question_cohort() {
 function answer_cohort() {
 	$type = "ANSWER";
 	$config = array(
-		array("MONTH", 12),
-		array("WEEK", 50),
+		array("MONTH", 24),
+		array("WEEK", 100),
 	);
 	cohort($type, $config);
 }
@@ -36,6 +36,7 @@ function blog_cohort() {
 }
 
 function cohort($type, $config){
+	echo $type;
 
 	$sql = 'DELETE FROM ^statics_cohort WHERE type="' . $type . '"';
 	qa_db_query_sub($sql);
@@ -63,7 +64,8 @@ function cohort($type, $config){
 
 			while($ago - $number > 0) {
 				$number++;
-				$result2 = q2a_statics_db_client::getCountBlogUsers($ago - $number,$datetype,$result['users']);
+				$method = 'getCount' . $type . 'Users';
+				$result2 = q2a_statics_db_client::$method($ago - $number,$datetype,$result['users']);
 				$row = array(
 					$result['date'],
 					$number,
