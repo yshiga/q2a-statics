@@ -15,6 +15,48 @@ class q2a_statics_db_client
       return $users;
     }
 
+    public static function getFirstNEWUSER_POSTUsers($ago,$type) {
+      $sql = "SELECT userid FROM ^users";
+      $sql .= " WHERE created BETWEEN DATE_ADD(NOW(), INTERVAL # " . $type . ") AND DATE_ADD(NOW(), INTERVAL # " . $type . ")";
+      $result = qa_db_query_sub($sql, -$ago - 1, -$ago);
+      $tmp = qa_db_read_all_assoc($result);
+      $users = self::filterUserIds($tmp);
+
+      // 期間の初日を取得する
+      $sql2 = "SELECT DATE_FORMAT(DATE_ADD(NOW(), INTERVAL # " . $type . "), '%Y-%m-%d') as date";
+      $result2 = qa_db_query_sub($sql2, -$ago - 1);
+      $first_date = qa_db_read_one_value($result2);
+
+      return array('date' => $first_date, 'users' => $users);
+    }
+
+    public static function getCountNEWUSER_POSTUsers($ago,$type,$users) {
+
+      if(count($users) > 0) {
+        $sql = "SELECT DISTINCT userid FROM qa_posts";
+        $sql .= " WHERE created BETWEEN DATE_ADD(NOW(), INTERVAL # " . $type . ") AND DATE_ADD(NOW(), INTERVAL # " . $type . ")";
+        $sql .= " AND userid IN (" . implode(",", $users) . ")";
+        $result = qa_db_query_sub($sql, -$ago - 1, -$ago);
+        $tmp = qa_db_read_all_assoc($result);
+        $q_users = self::filterUserIds($tmp);
+
+        $sql = "SELECT DISTINCT userid FROM qa_blogs";
+        $sql .= " WHERE created BETWEEN DATE_ADD(NOW(), INTERVAL # " . $type . ") AND DATE_ADD(NOW(), INTERVAL # " . $type . ")";
+        $sql .= " AND userid IN (" . implode(",", $users) . ")";
+        $result = qa_db_query_sub($sql, -$ago - 1, -$ago);
+        $tmp = qa_db_read_all_assoc($result);
+        $b_users = self::filterUserIds($tmp);
+
+        $users = array_merge($q_users, $b_users);
+      }
+
+      $sql2 = "SELECT DATE_FORMAT(DATE_ADD(NOW(), INTERVAL # " . $type . "), '%Y-%m-%d') as date";
+      $result2 = qa_db_query_sub($sql2, -$ago - 1);
+      $first_date = qa_db_read_one_value($result2);
+
+      return array('date' => $first_date, 'users' => $users);
+    }
+
     public static function getFirstANSWERUsers($ago,$type) {
 
       $sql = "SELECT * FROM (SELECT userid, DATE_FORMAT(MIN(created), '%Y-%m-%d') AS first_created ";
