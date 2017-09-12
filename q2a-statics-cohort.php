@@ -4,9 +4,19 @@ if (!defined('QA_VERSION')) {
 }
 require_once QA_PLUGIN_DIR . 'q2a-statics/q2a-statics-db-client.php';
 
+newuser_post_cohort();
 blog_cohort();
 question_cohort();
 answer_cohort();
+
+function newuser_post_cohort() {
+	$type = "NEWUSER_POST";
+	$config = array(
+		array("MONTH", 24),
+		array("WEEK", 100),
+	);
+	cohort($type, $config);
+}
 
 function question_cohort() {
 	$type = "QUESTION";
@@ -53,17 +63,9 @@ function cohort($type, $config){
 			$method = 'getFirst' . $type . 'Users';
 			$result = q2a_statics_db_client::$method($ago, $datetype);
 
-			$row = array(
-				$result['date'],
-				0,
-				count($result['users']),
-				count($result['users']),
-				$datetype
-			);
-			insert_data($row, $type);
+			$method = 'getCount' . $type . 'Users';
 
 			while($ago - $number > 0) {
-				$number++;
 				$method = 'getCount' . $type . 'Users';
 				$result2 = q2a_statics_db_client::$method($ago - $number,$datetype,$result['users']);
 				$row = array(
@@ -74,14 +76,12 @@ function cohort($type, $config){
 					$datetype
 				);
 				insert_data($row, $type);
+				$number++;
 
 			}
 		}
 	}
 }
-
-
-
 
 function insert_data($data, $type) {
 	$data[] = $type;
