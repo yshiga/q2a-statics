@@ -16,5 +16,8 @@ if (!defined('QA_VERSION')) {
 	exit;
 }
 
+@define( 'QA_STATICS_DIR', dirname( __FILE__ ) );
+
 qa_register_plugin_module('module', 'q2a-statics-admin.php','q2a_statics_admin', 'q2a statics');
 qa_register_plugin_module('event', 'q2a-statics-install.php', 'q2a_statics_install', 'statics Install');
+qa_register_plugin_module('event', 'q2a-statics-event.php', 'q2a_statics_event', 'Statics Event');
